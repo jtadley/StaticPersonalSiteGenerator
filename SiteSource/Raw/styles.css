@@ -1,0 +1,35 @@
+table, th, td {
+	border: 1px solid #a8ff9f;
+	border-collapse: collapse;
+}
+th {
+	padding: 10px;
+}
+body {
+	background-color: black;
+}
+
+h1 {
+	color: #ffdcf9;
+	text-align: center;
+}
+
+h5 {
+	color: #ffdcf9;
+}
+
+table {
+	width: 100%;
+}
+
+p, table, th, td {
+	color: #dcfffc;
+}
+
+.left {
+	float:left;
+}
+
+.right {
+	float:right;
+}
