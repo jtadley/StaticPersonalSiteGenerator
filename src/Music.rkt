@@ -49,6 +49,7 @@
    (λ (portion)
      (λ (m)
        (equal? portion (string-car (music-artist m)))))
+   string
    generic-sort-music
    (λ (m)
      (not (char-alphabetic? (string-car (music-artist m)))))))
@@ -71,6 +72,7 @@
    (λ (portion)
      (λ (m)
        (equal? portion (string-car (music-album m)))))
+   string
    (λ (m1 m2)
      (string<=? (music-album m1) (music-album m2)))
    (λ (m)
@@ -94,6 +96,7 @@
    (λ (portion)
      (λ (m)
        (equal? portion (music-rating m))))
+   number->string
    generic-sort-music
    #f))
 
@@ -118,6 +121,7 @@
          (and
           (<= portion yr)
           (> (+ portion 10) yr)))))
+   number->string
    (λ (m1 m2)
      (let ([m1-yr (music-year m1)]
            [m2-yr (music-year m2)])
@@ -146,6 +150,7 @@
    (λ (portion)
      (λ (m)
        (member portion (music-genres m))))
+   id
    generic-sort-music
    #f))
 
@@ -162,6 +167,7 @@
       (music-rating m)
       val))
    (λ (m) (music-opinion m))
+   #f
    #f
    #f
    #f

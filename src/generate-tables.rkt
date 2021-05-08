@@ -16,6 +16,16 @@
 
 ;; --------------
 
+(struct table
+  (file_name
+   data_rows)
+  #:methods gen:custom-write
+  [(define write-proc
+     (make-constructor-style-printer
+      (λ (t) 'table)
+      (λ (t) (list (table-file_name t)
+                   (length (table-data_rows t))))))])
+
 (struct data
   (name        ; title (ex: "Artist")
    accessor    ; get the value for this data from a struct
@@ -25,6 +35,7 @@
    ;; info for generating tables
    portions    ; #f OR list of things we are splitting the data into
    in_portion? ; #f OR predicate that takes in an element and says whether it belongs to a portion
+   portion→str ; convert an element of portions to a string
    sort_fn     ; #f OR takes two elements of a struct and compares them
    overflow?   ; #f OR predicate that takes in an element and says whether it doesn't match a portion
    )
@@ -35,6 +46,7 @@
       (λ (d) (list (data-name d)
                    (data-table? d)))))])
 
+#;
 (define build-tables
   (λ (d)
     (let ([d-name (data-name d)]
@@ -57,15 +69,36 @@
                      (writeln (string-append "done building table for: " d-name))]
                     [else (build-table
                            d
-                           (build-file-name d-name (car ls))
+                           (build-file-name d-name (string (car ls)))
                            d-in_portion?
                            d-sort_fn)
                           (helper (cdr ls))]))])
         (helper d-portions)))))
 
-(define build-table
-  (λ (d out-file filter-pred sort-fn)
-    'todo))
+(define struct→tables
+  (λ (d lo-struct)
+    (let ([d-name (data-name d)]
+          [d-portions (data-portions d)]
+          [d-in_portion? (data-in_portion? d)]
+          [d-portion→str (data-portion→str d)]
+          [d-sort_fn (data-sort_fn d)]
+          [d-overflow? (data-overflow? d)])
+      (letrec ([helper
+                (λ (ls)
+                  (cond
+                    [(empty? ls)
+                     (if d-overflow?
+                         (list (table (build-file-name d-name "Other")
+                                      (filter d-overflow? lo-struct)))
+                         '())]
+                    [else
+                     (let* ([cur (if d-in_portion? (filter (d-in_portion? (car ls)) lo-struct) lo-struct)]
+                            [cur (if d-sort_fn (sort cur d-sort_fn) cur)])
+                       (cons
+                        (table (build-file-name d-name (d-portion→str (car ls)))
+                               cur)
+                        (helper (cdr ls))))]))])
+        (helper d-portions)))))
 
 (define add-field+value-to-data
   (λ (d fld val lod)
@@ -107,11 +140,23 @@
                                     (helper (cdr ls)))]))])
           (make-tr (map make-td (helper lo-to_string))))))))
 
+(define lo-struct→tables
+  (λ (lod lo-struct)
+    (cond
+      [(empty? lod) '()]
+      [(not (data-table? (car lod))) (lo-struct→tables (cdr lod) lo-struct)]
+      [else
+       (append
+        (struct→tables (car lod) lo-struct)
+        (lo-struct→tables (cdr lod) lo-struct))])))
+
 (define go
   (λ (lod get-default-struct)
     (let* ([files (dir→files SOURCE-DIR)]
            [lo-lines (map file->lines files)]
            [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
-           [_ (writeln lo-struct)]
-           [lo-tr (map (struct→tr lod) lo-struct)])
-      lo-tr)))
+           [lo-table (lo-struct→tables lod lo-struct)]
+           ; went too far, gotta filter and separate first
+           ;[lo-tr (map (struct→tr lod) lo-struct)]
+           )
+      lo-table)))
