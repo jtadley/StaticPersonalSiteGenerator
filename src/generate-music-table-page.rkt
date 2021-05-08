@@ -302,7 +302,7 @@
         (begin
           (build
            (string-append title "-" (car ls) ".html")
-           (λ (td) (string-contains? (accessor td) (car ls)))
+           (λ (td) (string-contains? (accessor td) (car ls)))  ; TODO: best to match exactly by having table-data-genres in a list
            (λ (td1 td2) (< (table-data-rating td1) (table-data-rating td2))))
           (build-in-list (cdr ls) title accessor)))))
 
