@@ -34,6 +34,14 @@
   (λ (rows)
     (string-append "<table>" rows "</table>")))
 
+(define make-p
+  (λ (v)
+    (string-append "<p>" v "</p>")))
+
+(define make-a
+  (λ (link text)
+    (string-append "<a href=\"" link "\">" text "</a>")))
+
 (define get-html-header
   (λ (back-link home-link style-source)
     (string-append

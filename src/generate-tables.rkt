@@ -138,11 +138,46 @@
       (display-to-file (table-data_rows t)
                        (string-append out-dir "/" (table-file_name t))))))
 
+(define get-root-file-name
+  (λ (d)
+    (string-append (data-name d) ".html")))
+
+(define get-index-file
+  (λ (back-link home-link style-source title)
+    (λ (lod)
+      (let* ([pas (map (λ (d)
+                         (make-p (make-a (get-root-file-name d)
+                                         (data-name d))))
+                       lod)]
+             [body (string-join pas)])
+        (table
+         "index.html"
+         ((build-html-page back-link home-link style-source title) body))))))
+
+(define get-root-file
+  (λ (back-link home-link style-source title)
+    (λ (d)
+      (let* ([d-name (data-name d)]
+             [d-portions (data-portions d)]
+             [d-portion→str (data-portion→str d)]
+             [d-portions-str (map d-portion→str d-portions)]
+             [get-cur-file-name (λ (p) (build-file-name d-name p))]
+             [pas (map (λ (p)
+                         (make-p (make-a (get-cur-file-name p)
+                                         p)))
+                       d-portions-str)]
+             [body (string-join pas)])
+        (table
+         (string-append d-name ".html")
+         ((build-html-page back-link home-link style-source title) body))))))
+
 (define go
   (λ (lod get-default-struct)
     (let* ([files (dir→files SOURCE-DIR)]
            [lo-lines (map file->lines files)]
            [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
            [lo-table (lo-struct→tables lod lo-struct)]
-           [lo-html (map ((table→html BACK-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") lod) lo-table)])
+           [lo-html (map ((table→html BACK-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") lod) lo-table)] ; these back pages should be (get-root-file-name d)
+           [lo-html (cons ((get-index-file HOME-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") lod) lo-html)]
+           [lo-html (append lo-html (map (get-root-file BACK-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") (filter (λ (d) (data-table? d)) lod)))])
       (map (html→disk OUT-DIR) lo-html))))
