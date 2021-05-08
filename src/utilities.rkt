@@ -20,6 +20,13 @@
         (string-append name "-" more ".html")
         (string-append name ".html"))))
 
+(define get-info-from-file-name
+  (λ (f-name)
+    (let* ([file-info (string-split f-name "-")]
+           [name (car file-info)]
+           [portion (car (string-split (cadr file-info) "."))])
+      (values name portion))))
+
 ;; HTML -----------
 
 (define make-td

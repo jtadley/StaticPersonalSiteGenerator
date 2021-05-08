@@ -9,9 +9,9 @@
 ;; --------------
 
 (define SOURCE-DIR "../SiteSource/Music")
-(define BACK-PAGE "index.html")
-(define HOME-PAGE "../../index.html")
-(define STYLE-SOURCE "../../styles.css")
+(define BACK-PAGE "index.html") ; this should be dynamic
+(define HOME-PAGE "../index.html")
+(define STYLE-SOURCE "../styles.css")
 (define OUT-DIR "out")
 (define SEPARATOR ":")
 
@@ -123,14 +123,15 @@
         (lo-struct→tables (cdr lod) lo-struct))])))
 
 (define table→html
-  (λ (back-link home-link style-source title)
+  (λ (home-link style-source title)
     (λ (lod)
       (λ (t)
-       (let* ([table-header (lod→table-header lod)]
-              [table-rows (map (λ (t) ((struct→tr lod) t)) (table-data_rows t))]
-              [body (make-html-table (string-append table-header (string-join table-rows)))]
-              [html ((build-html-page back-link home-link style-source title) body)])
-         (table (table-file_name t) html))))))
+        (let-values ([(name portion) (get-info-from-file-name (table-file_name t))])
+          (let* ([table-header (lod→table-header lod)]
+                 [table-rows (map (λ (t) ((struct→tr lod) t)) (table-data_rows t))]
+                 [body (make-html-table (string-append table-header (string-join table-rows)))]
+                 [html ((build-html-page (string-append name ".html") home-link style-source (string-append title " by " name ": " portion)) body)])
+            (table (table-file_name t) html)))))))
 
 (define html→disk
   (λ (out-dir)
@@ -169,15 +170,15 @@
              [body (string-join pas)])
         (table
          (string-append d-name ".html")
-         ((build-html-page back-link home-link style-source title) body))))))
+         ((build-html-page back-link home-link style-source (string-append title " by " d-name)) body))))))
 
 (define go
-  (λ (lod get-default-struct)
+  (λ (lod get-default-struct title)
     (let* ([files (dir→files SOURCE-DIR)]
            [lo-lines (map file->lines files)]
            [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
            [lo-table (lo-struct→tables lod lo-struct)]
-           [lo-html (map ((table→html BACK-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") lod) lo-table)] ; these back pages should be (get-root-file-name d)
-           [lo-html (cons ((get-index-file HOME-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") lod) lo-html)]
-           [lo-html (append lo-html (map (get-root-file BACK-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") (filter (λ (d) (data-table? d)) lod)))])
+           [lo-html (map ((table→html HOME-PAGE STYLE-SOURCE title) lod) lo-table)] ; these back pages should be (get-root-file-name d)
+           [lo-html (cons ((get-index-file HOME-PAGE HOME-PAGE STYLE-SOURCE title) lod) lo-html)]
+           [lo-html (append lo-html (map (get-root-file "index.html" HOME-PAGE STYLE-SOURCE title) (filter (λ (d) (data-table? d)) lod)))])
       (map (html→disk OUT-DIR) lo-html))))
