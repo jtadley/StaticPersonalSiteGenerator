@@ -30,6 +30,41 @@
   (λ (lo-td)
     (string-append tr-start (string-join lo-td) tr-end)))
 
+(define make-html-table
+  (λ (rows)
+    (string-append "<table>" rows "</table>")))
+
+(define get-html-header
+  (λ (back-link home-link style-source)
+    (string-append
+     "<!DOCTYPE html><html><head><link rel=\"stylesheet\" href=\""
+     style-source
+     "\"></head><body><h5><span class=\"left\"><a href=\""
+     back-link
+     "\">Back</a></span><span class=\"right\"><a href=\""
+     home-link
+     "\">Jacob Adley</a></span></h5>")))
+
+(define get-html-title
+  (λ (title)
+    (string-append
+     "<h1>"
+     title
+     "</h1>")))
+
+(define get-html-footer
+  (λ ()
+    "</body></html>"))
+
+(define build-html-page
+  (λ (back-link home-link style-source title)
+    (λ (body)
+      (string-append
+       (get-html-header back-link home-link style-source)
+       (get-html-title title)
+       body
+       (get-html-footer)))))
+
 
 ;; STRING OPS ----------------------
 

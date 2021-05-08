@@ -12,6 +12,7 @@
 (define BACK-PAGE "index.html")
 (define HOME-PAGE "../../index.html")
 (define STYLE-SOURCE "../../styles.css")
+(define OUT-DIR "out")
 (define SEPARATOR ":")
 
 ;; --------------
@@ -24,7 +25,7 @@
      (make-constructor-style-printer
       (λ (t) 'table)
       (λ (t) (list (table-file_name t)
-                   (length (table-data_rows t))))))])
+                   (table-data_rows t)))))])
 
 (struct data
   (name        ; title (ex: "Artist")
@@ -45,35 +46,6 @@
       (λ (d) 'data)
       (λ (d) (list (data-name d)
                    (data-table? d)))))])
-
-#;
-(define build-tables
-  (λ (d)
-    (let ([d-name (data-name d)]
-          [d-portions (data-portions d)]
-          [d-in_portion? (data-in_portion? d)]
-          [d-sort_fn (data-sort_fn d)]
-          [d-overflow? (data-overflow? d)])
-      (letrec ([helper
-                (λ (ls)
-                  (cond
-                    [(empty? ls)
-                     (if d-overflow?
-                         (begin
-                           (build-table
-                            d
-                            (build-file-name d-name (car ls))
-                            d-overflow?
-                            d-sort_fn))
-                         (void))
-                     (writeln (string-append "done building table for: " d-name))]
-                    [else (build-table
-                           d
-                           (build-file-name d-name (string (car ls)))
-                           d-in_portion?
-                           d-sort_fn)
-                          (helper (cdr ls))]))])
-        (helper d-portions)))))
 
 (define struct→tables
   (λ (d lo-struct)
@@ -150,13 +122,27 @@
         (struct→tables (car lod) lo-struct)
         (lo-struct→tables (cdr lod) lo-struct))])))
 
+(define table→html
+  (λ (back-link home-link style-source title)
+    (λ (lod)
+      (λ (t)
+       (let* ([table-header (lod→table-header lod)]
+              [table-rows (map (λ (t) ((struct→tr lod) t)) (table-data_rows t))]
+              [body (make-html-table (string-append table-header (string-join table-rows)))]
+              [html ((build-html-page back-link home-link style-source title) body)])
+         (table (table-file_name t) html))))))
+
+(define html→disk
+  (λ (out-dir)
+    (λ (t)
+      (display-to-file (table-data_rows t)
+                       (string-append out-dir "/" (table-file_name t))))))
+
 (define go
   (λ (lod get-default-struct)
     (let* ([files (dir→files SOURCE-DIR)]
            [lo-lines (map file->lines files)]
            [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
            [lo-table (lo-struct→tables lod lo-struct)]
-           ; went too far, gotta filter and separate first
-           ;[lo-tr (map (struct→tr lod) lo-struct)]
-           )
-      lo-table)))
+           [lo-html (map ((table→html BACK-PAGE HOME-PAGE STYLE-SOURCE "tmp-title") lod) lo-table)])
+      (map (html→disk OUT-DIR) lo-html))))
