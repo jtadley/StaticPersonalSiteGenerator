@@ -177,7 +177,8 @@
 
 ;; --------
 (define build-music
-  (λ () (go (list MUSIC-ARTIST MUSIC-ALBUM MUSIC-YEAR MUSIC-GENRES MUSIC-RATING MUSIC-OPINION)
+  (λ () (go "Music"
+            (list MUSIC-ARTIST MUSIC-ALBUM MUSIC-YEAR MUSIC-GENRES MUSIC-RATING MUSIC-OPINION)
             (λ () (music #f #f #f #f #f #f))
             "Music")))
 

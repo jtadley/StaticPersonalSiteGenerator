@@ -8,7 +8,7 @@
 
 ;; --------------
 
-(define SOURCE-DIR "../SiteSource/Music")
+(define SOURCE-DIR "../SiteSource")
 (define BACK-PAGE "index.html") ; this should be dynamic
 (define HOME-PAGE "../index.html")
 (define STYLE-SOURCE "../styles.css")
@@ -173,9 +173,10 @@
          ((build-html-page back-link home-link style-source (string-append title " by " d-name)) body))))))
 
 (define go
-  (λ (lod get-default-struct title)
-    (let* ([files (dir→files SOURCE-DIR)]
+  (λ (source-folder lod get-default-struct title)
+    (let* ([files (dir→files (string-append SOURCE-DIR "/" source-folder))]
            [lo-lines (map file->lines files)]
+           [_ (writeln lo-lines)]
            [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
            [lo-table (lo-struct→tables lod lo-struct)]
            [lo-html (map ((table→html HOME-PAGE STYLE-SOURCE title) lod) lo-table)] ; these back pages should be (get-root-file-name d)
