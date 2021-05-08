@@ -70,7 +70,7 @@
 (define add-field+value-to-data
   (λ (d fld val lod)
     (cond
-      [(empty? lod) d]
+      [(empty? lod) (writeln fld) d]
       [(string=? fld (data-name (car lod)))
        ((data-setter (car lod))
         val
@@ -95,10 +95,23 @@
     (let ([names (map (λ (d) (make-td (data-name d))) lod)])
       (make-tr names))))
 
-; list of data
+(define struct→tr
+  (λ (lod)
+    (let ([lo-to_string (map data-to_string lod)])
+      (λ (s)
+        (letrec ([helper (λ (ls)
+                           (cond
+                             [(empty? ls) '()]
+                             [else
+                              (cons ((car ls) s)
+                                    (helper (cdr ls)))]))])
+          (make-tr (map make-td (helper lo-to_string))))))))
+
 (define go
   (λ (lod get-default-struct)
     (let* ([files (dir→files SOURCE-DIR)]
            [lo-lines (map file->lines files)]
-           [lo-struct (map (lines→data lod get-default-struct) lo-lines)])
-      lo-struct)))
+           [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
+           [_ (writeln lo-struct)]
+           [lo-tr (map (struct→tr lod) lo-struct)])
+      lo-tr)))

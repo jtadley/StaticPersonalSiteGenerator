@@ -130,15 +130,15 @@
 
 (define MUSIC-GENRES
   (data
-   "Genre"
+   "Genres"
    (λ (m) (music-genres m))
    (λ (val m)
      (music
       (music-artist m)
       (music-album m)
       (music-year m)
-      (music-genres m)
       (string-split val ",")
+      (music-rating m)
       (music-opinion m)))
    (λ (m) (los→str (music-genres m)))
    #t
@@ -173,6 +173,3 @@
 (define test
   (λ () (go (list MUSIC-ARTIST MUSIC-ALBUM MUSIC-YEAR MUSIC-GENRES MUSIC-RATING MUSIC-OPINION)
             (λ () (music #f #f #f #f #f #f)))))
-
-(define test2
-  (λ () (add-field+value-to-data (music "My" #f #f #f #f #f) "Album" "Penis" (list MUSIC-ARTIST MUSIC-ALBUM MUSIC-YEAR MUSIC-GENRES MUSIC-RATING MUSIC-OPINION))))
