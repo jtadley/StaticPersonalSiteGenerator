@@ -161,7 +161,7 @@
       (movie-opinion m)))
    (λ (m) (los→str (movie-writers m)))
    #t
-   (list "Boris Strugatsky" "Arkady Strugatsky" "Andrei Tarkovsky")
+   (list "Boris Strugatsky" "Arkady Strugatsky" "Andrei Tarkovsky" "Barry Gifford" "Satoshi Kon" "Sadayuki Murai" "Tonino Guerra")
    (λ (portion)
      (λ (m)
        (member portion (movie-writers m))))
@@ -184,7 +184,7 @@
       (movie-opinion m)))
    (λ (m) (los→str (movie-genres m)))
    #t
-   (list "Art" "Science Fiction" "Drama" "Psychological Thriller" "Thriller" "Horror" "Anime")
+   (list "Animation" "Art" "Comedy" "Crime" "Drama" "Fantasy" "Horror" "Mystery" "Psychological Thriller" "Romance" "Science Fiction" "Thriller")
    (λ (portion)
      (λ (m)
        (member portion (movie-genres m))))
