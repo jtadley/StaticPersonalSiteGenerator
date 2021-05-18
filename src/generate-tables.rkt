@@ -176,10 +176,10 @@
   (λ (source-folder lod get-default-struct title)
     (let* ([files (dir→files (string-append SOURCE-DIR "/" source-folder))]
            [lo-lines (map file->lines files)]
-           [_ (writeln lo-lines)]
            [lo-struct (map (lines→data lod get-default-struct) lo-lines)]
            [lo-table (lo-struct→tables lod lo-struct)]
            [lo-html (map ((table→html HOME-PAGE STYLE-SOURCE title) lod) lo-table)] ; these back pages should be (get-root-file-name d)
-           [lo-html (cons ((get-index-file HOME-PAGE HOME-PAGE STYLE-SOURCE title) lod) lo-html)]
-           [lo-html (append lo-html (map (get-root-file "index.html" HOME-PAGE STYLE-SOURCE title) (filter (λ (d) (data-table? d)) lod)))])
+           [lod-table?=#t (filter (λ (d) (data-table? d)) lod)]
+           [lo-html (cons ((get-index-file HOME-PAGE HOME-PAGE STYLE-SOURCE title) lod-table?=#t) lo-html)]
+           [lo-html (append lo-html (map (get-root-file "index.html" HOME-PAGE STYLE-SOURCE title) lod-table?=#t))])
       (map (html→disk OUT-DIR) lo-html))))

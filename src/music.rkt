@@ -146,7 +146,7 @@
       (music-opinion m)))
    (λ (m) (los→str (music-genres m)))
    #t
-   (list "Alternative" "Art" "Atmospheric" "Avant-Garde" "Black Metal" "Doom Metal" "Experimental" "Indie" "Industrial" "Jazz" "Metal" "Noise" "Post Black Metal" "Post Rock" "Shoegaze")
+   (list "Alternative" "Art" "Atmospheric" "Avant-Garde" "Black Metal" "Doom Metal" "Experimental" "Indie" "Industrial" "Jazz" "Metal" "Noise" "Post Black Metal" "Post Rock" "Shoegaze" "Stoner Metal")
    (λ (portion)
      (λ (m)
        (member portion (music-genres m))))
